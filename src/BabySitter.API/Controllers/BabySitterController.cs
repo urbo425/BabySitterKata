@@ -29,12 +29,14 @@ namespace BabySitter.API.Controllers
                 return new BadRequestObjectResult("StartTime before 5:00PM is invalid.");
             }
 
-            if (calculatePayRequest.EndTime.Hour > 04)
+            if (calculatePayRequest.EndTime.Hour > 04 && 
+                calculatePayRequest.EndTime.Date == calculatePayRequest.StartTime.Date.AddDays(1))
             {
-                return new BadRequestObjectResult("EndTime after 4:00AM is invalid.");
+                return new BadRequestObjectResult("EndTime after 4:00AM the next day is invalid.");
             }
-            
-            return Ok();
+
+            var hoursWorked = calculatePayRequest.EndTime - calculatePayRequest.StartTime;
+            return Ok((hoursWorked.TotalHours * 12).ToString("C"));
         }
     }
 

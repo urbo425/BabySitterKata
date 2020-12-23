@@ -11,7 +11,6 @@ namespace BabySitter.API.Test
 {
     public class BabySitterControllerTest
     {
-        
         [Fact]
         public void ShouldReturnBadRequest_GivenStartTimeBefore1700()
         {
@@ -19,7 +18,7 @@ namespace BabySitter.API.Test
             var request = new CalculatePayRequest
             {
                 StartTime = new DateTime(2020, 01, 01, 16, 00, 00),
-                EndTime = new DateTime()
+                EndTime = new DateTime(2020, 01, 02, 18, 00, 00)
             };
 
             var response = (BadRequestObjectResult) sut.CalculatePay(request);
@@ -29,7 +28,7 @@ namespace BabySitter.API.Test
         }
 
         [Fact]
-        public void ShouldReturnBadRequest_GivenEndTimeAfter0400()
+        public void ShouldReturnBadRequest_GivenEndTimeAfter0400TheNextDay()
         {
             var sut = GetDefaultBabySitterController();
             var request = new CalculatePayRequest
@@ -41,7 +40,43 @@ namespace BabySitter.API.Test
             var response = (BadRequestObjectResult) sut.CalculatePay(request);
 
             response.StatusCode.Should().Be(400);
-            response.Value.Should().Be("EndTime after 4:00AM is invalid.");
+            response.Value.Should().Be("EndTime after 4:00AM the next day is invalid.");
+        }
+
+        [Fact]
+        public void ShouldReturnOk()
+        {
+            var sut = GetDefaultBabySitterController();
+            var request = new CalculatePayRequest
+            {
+                StartTime = new DateTime(2020, 01, 01, 18, 00, 00),
+                EndTime = new DateTime(2020, 01, 01, 20, 00, 00)
+            };
+
+            var response = (OkObjectResult) sut.CalculatePay(request);
+
+            response.StatusCode.Should().Be(200);
+        }
+
+        [Fact]
+        public void ShouldCalculateRateAt12DollarsPerHour_GiveTimeIsBeforeBedtime()
+        {
+            var configuration = new ConfigurationBuilder()
+                .AddInMemoryCollection(new Dictionary<string, string>
+                {
+                    {"BedtimeHour", "18"}
+                }).Build();
+            var sut = new BabySitterController(configuration);
+            var request = new CalculatePayRequest
+            {
+                StartTime = new DateTime(2020, 01, 01, 17, 00, 00),
+                EndTime = new DateTime(2020, 01, 01, 18, 00, 00)
+            };
+
+            var response = (OkObjectResult) sut.CalculatePay(request);
+
+            response.StatusCode.Should().Be(200);
+            response.Value.Should().Be("$12.00");
         }
         
         private BabySitterController GetDefaultBabySitterController()
@@ -49,7 +84,7 @@ namespace BabySitter.API.Test
             var configuration = new ConfigurationBuilder()
                 .AddInMemoryCollection(new Dictionary<string, string>
                 {
-                    {"BedtimeHour", "8"}
+                    {"BedtimeHour", "20"}
                 }).Build();
             return new BabySitterController(configuration);
         }
