@@ -6,7 +6,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{6792ED21-1
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BabySitter.API", "src\BabySitter.API\BabySitter.API.csproj", "{CFD1D729-8038-4615-AC78-7D3F3CBFBF58}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BabySitter.API.Tests", "test\BabySitter.API.Tests\BabySitter.API.Tests.csproj", "{876F47D8-7D6B-4930-AAC0-C8C43DB2B9AF}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BabySitter.API.Test", "test\BabySitter.API.Test\BabySitter.API.Test.csproj", "{25DD7E3F-F4CD-410D-A264-715627079790}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,16 +15,16 @@ Global
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{CFD1D729-8038-4615-AC78-7D3F3CBFBF58} = {8E4C2BF5-C973-475F-839F-E59990342A74}
-		{876F47D8-7D6B-4930-AAC0-C8C43DB2B9AF} = {6792ED21-1A39-45E2-9623-0A086D04A42F}
+		{25DD7E3F-F4CD-410D-A264-715627079790} = {6792ED21-1A39-45E2-9623-0A086D04A42F}
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{CFD1D729-8038-4615-AC78-7D3F3CBFBF58}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{CFD1D729-8038-4615-AC78-7D3F3CBFBF58}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CFD1D729-8038-4615-AC78-7D3F3CBFBF58}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CFD1D729-8038-4615-AC78-7D3F3CBFBF58}.Release|Any CPU.Build.0 = Release|Any CPU
-		{876F47D8-7D6B-4930-AAC0-C8C43DB2B9AF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{876F47D8-7D6B-4930-AAC0-C8C43DB2B9AF}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{876F47D8-7D6B-4930-AAC0-C8C43DB2B9AF}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{876F47D8-7D6B-4930-AAC0-C8C43DB2B9AF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{25DD7E3F-F4CD-410D-A264-715627079790}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{25DD7E3F-F4CD-410D-A264-715627079790}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{25DD7E3F-F4CD-410D-A264-715627079790}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{25DD7E3F-F4CD-410D-A264-715627079790}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
