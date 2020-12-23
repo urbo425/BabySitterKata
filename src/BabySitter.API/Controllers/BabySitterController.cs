@@ -1,11 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Configuration;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Logging;
 
 namespace BabySitter.API.Controllers
 {
@@ -35,8 +30,44 @@ namespace BabySitter.API.Controllers
                 return new BadRequestObjectResult("EndTime after 4:00AM the next day is invalid.");
             }
 
-            var hoursWorked = calculatePayRequest.EndTime - calculatePayRequest.StartTime;
-            return Ok((hoursWorked.TotalHours * 12).ToString("C"));
+            var hoursWorkedBeforeBedtime = GetHoursWorkedBeforeBedtime(calculatePayRequest, bedtimeHour);
+            var hoursWorkedAfterMidnight = GetHoursWorkedAfterMidnight(calculatePayRequest);
+            var hoursWorkedBetweenBedtimeAndMidnight =
+                GetHoursWorkedBetweenBedtimeAndMidnight(calculatePayRequest, hoursWorkedBeforeBedtime, hoursWorkedAfterMidnight);
+            var pay = CalculateTotalPay(hoursWorkedBeforeBedtime, hoursWorkedAfterMidnight,
+                hoursWorkedBetweenBedtimeAndMidnight);
+            return Ok(pay.ToString("C"));
+        }
+
+        private double CalculateTotalPay(double hoursWorkedBeforeBedtime, double hoursWorkedAfterMidnight, double hoursWorkedBetweenBedtimeAndMidnight)
+        {
+            return (hoursWorkedBeforeBedtime * 12) +
+                   (hoursWorkedAfterMidnight * 16) +
+                   (hoursWorkedBetweenBedtimeAndMidnight * 8);
+        }
+
+        private double GetHoursWorkedAfterMidnight(CalculatePayRequest calculatePayRequest)
+        {
+            var midnightOfNextDay = calculatePayRequest.StartTime.AddDays(1).Date;
+            if (calculatePayRequest.EndTime >= midnightOfNextDay)
+            {
+                return (calculatePayRequest.EndTime - midnightOfNextDay).TotalHours;
+            }
+
+            return 0;
+        }
+
+        private double GetHoursWorkedBetweenBedtimeAndMidnight(CalculatePayRequest calculatePayRequest, double hoursWorkedBeforeBedtime, double hoursWorkedAfterMidnight)
+        {
+            var totalHoursWorked = (calculatePayRequest.EndTime - calculatePayRequest.StartTime).TotalHours;
+            var hoursBetweenBedtimeAndMidnight = totalHoursWorked - (hoursWorkedBeforeBedtime + hoursWorkedAfterMidnight);
+            return hoursBetweenBedtimeAndMidnight > 0 ? hoursBetweenBedtimeAndMidnight : 0;
+        }
+
+        private double GetHoursWorkedBeforeBedtime(CalculatePayRequest calculatePayRequest, int bedtimeHour)
+        {
+            var bedtimeHoursWorked = bedtimeHour - calculatePayRequest.StartTime.Hour;
+            return bedtimeHoursWorked > 0 ? bedtimeHoursWorked : 0;
         }
     }
 

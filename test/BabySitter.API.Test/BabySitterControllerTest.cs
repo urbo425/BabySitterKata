@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Net;
 using BabySitter.API.Controllers;
 using FluentAssertions;
 using Microsoft.AspNetCore.Mvc;
@@ -59,7 +58,7 @@ namespace BabySitter.API.Test
         }
 
         [Fact]
-        public void ShouldCalculateRateAt12DollarsPerHour_GiveTimeIsBeforeBedtime()
+        public void ShouldCalculateRateAt12DollarsPerHour_GivenTimeIsBeforeBedtime()
         {
             var configuration = new ConfigurationBuilder()
                 .AddInMemoryCollection(new Dictionary<string, string>
@@ -78,7 +77,70 @@ namespace BabySitter.API.Test
             response.StatusCode.Should().Be(200);
             response.Value.Should().Be("$12.00");
         }
-        
+
+        [Fact]
+        public void ShouldCalculateRateAt8DollarsPerHour_GivenTimeIsAfterBedtimeAndBeforeMidnight()
+        {
+            var configuration = new ConfigurationBuilder()
+                .AddInMemoryCollection(new Dictionary<string, string>
+                {
+                    {"BedtimeHour", "18"}
+                }).Build();
+            var sut = new BabySitterController(configuration);
+            var request = new CalculatePayRequest
+            {
+                StartTime = new DateTime(2020, 01, 01, 19, 00, 00),
+                EndTime = new DateTime(2020, 01, 01, 20, 00, 00)
+            };
+
+            var response = (OkObjectResult) sut.CalculatePay(request);
+
+            response.StatusCode.Should().Be(200);
+            response.Value.Should().Be("$8.00");
+        }
+
+        [Fact]
+        public void ShouldCalculateRateAt16DollarsPerHour_GivenTimeIsAfterMidnight()
+        {
+            var configuration = new ConfigurationBuilder()
+                .AddInMemoryCollection(new Dictionary<string, string>
+                {
+                    {"BedtimeHour", "18"}
+                }).Build();
+            var sut = new BabySitterController(configuration);
+            var request = new CalculatePayRequest
+            {
+                StartTime = new DateTime(2020, 01, 01, 23, 00, 00),
+                EndTime = new DateTime(2020, 01, 02, 01, 00, 00)
+            };
+
+            var response = (OkObjectResult) sut.CalculatePay(request);
+
+            response.StatusCode.Should().Be(200);
+            response.Value.Should().Be("$24.00");
+        }
+
+        [Fact]
+        public void ShouldCalculatePayForAllRates()
+        {
+            var configuration = new ConfigurationBuilder()
+                .AddInMemoryCollection(new Dictionary<string, string>
+                {
+                    {"BedtimeHour", "20"}
+                }).Build();
+            var sut = new BabySitterController(configuration);
+            var request = new CalculatePayRequest
+            {
+                StartTime = new DateTime(2020, 01, 01, 17, 00, 00),
+                EndTime = new DateTime(2020, 01, 02, 04, 00, 00)
+            };
+
+            var response = (OkObjectResult) sut.CalculatePay(request);
+
+            response.StatusCode.Should().Be(200);
+            response.Value.Should().Be("$132.00");
+        }
+
         private BabySitterController GetDefaultBabySitterController()
         {
             var configuration = new ConfigurationBuilder()
