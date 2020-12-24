@@ -63,7 +63,7 @@ namespace BabySitter.API.Test
             var configuration = new ConfigurationBuilder()
                 .AddInMemoryCollection(new Dictionary<string, string>
                 {
-                    {"BedtimeHour", "18"}
+                    {"BedtimeHour", "20"}
                 }).Build();
             var sut = new BabySitterController(configuration);
             var request = new CalculatePayRequest

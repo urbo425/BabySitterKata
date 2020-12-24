@@ -8,9 +8,9 @@ namespace BabySitter.API.Controllers
     [Route("[controller]")]
     public class BabySitterController : ControllerBase
     {
-        private readonly IConfigurationRoot _configuration;
+        private readonly IConfiguration _configuration;
 
-        public BabySitterController(IConfigurationRoot configuration)
+        public BabySitterController(IConfiguration configuration)
         {
             _configuration = configuration;
         }
@@ -19,6 +19,7 @@ namespace BabySitter.API.Controllers
         public ActionResult CalculatePay([FromBody] CalculatePayRequest calculatePayRequest)
         {
             var bedtimeHour = _configuration.GetValue<int>("BedtimeHour");
+            var bedtime = calculatePayRequest.StartTime.Date.Add(new TimeSpan(bedtimeHour, 0, 0));
             if (calculatePayRequest.StartTime.Hour < 17)
             {
                 return new BadRequestObjectResult("StartTime before 5:00PM is invalid.");
@@ -30,7 +31,7 @@ namespace BabySitter.API.Controllers
                 return new BadRequestObjectResult("EndTime after 4:00AM the next day is invalid.");
             }
 
-            var hoursWorkedBeforeBedtime = GetHoursWorkedBeforeBedtime(calculatePayRequest, bedtimeHour);
+            var hoursWorkedBeforeBedtime = GetHoursWorkedBeforeBedtime(calculatePayRequest, bedtime);
             var hoursWorkedAfterMidnight = GetHoursWorkedAfterMidnight(calculatePayRequest);
             var hoursWorkedBetweenBedtimeAndMidnight =
                 GetHoursWorkedBetweenBedtimeAndMidnight(calculatePayRequest, hoursWorkedBeforeBedtime, hoursWorkedAfterMidnight);
@@ -64,10 +65,16 @@ namespace BabySitter.API.Controllers
             return hoursBetweenBedtimeAndMidnight > 0 ? hoursBetweenBedtimeAndMidnight : 0;
         }
 
-        private double GetHoursWorkedBeforeBedtime(CalculatePayRequest calculatePayRequest, int bedtimeHour)
+        private double GetHoursWorkedBeforeBedtime(CalculatePayRequest calculatePayRequest, DateTime bedtime)
         {
-            var bedtimeHoursWorked = bedtimeHour - calculatePayRequest.StartTime.Hour;
-            return bedtimeHoursWorked > 0 ? bedtimeHoursWorked : 0;
+            if (calculatePayRequest.StartTime >= bedtime) return 0;
+
+            if (calculatePayRequest.EndTime < bedtime)
+            {
+                return (calculatePayRequest.EndTime - calculatePayRequest.StartTime).TotalHours;
+            }
+           
+            return (bedtime - calculatePayRequest.StartTime).TotalHours;
         }
     }
 
